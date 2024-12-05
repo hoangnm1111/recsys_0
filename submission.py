@@ -74,7 +74,6 @@ def prediction(model, args, device, category_dict, subcategory_dict):
     zip_file = zipfile.ZipFile('prediction.zip', 'w')
     zip_file.write('prediction.txt')
     zip_file.close()
-    os.remove('prediction.txt')
 
 if __name__ == "__main__":
     from parameters import parse_args
