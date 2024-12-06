@@ -261,7 +261,7 @@ class DataLoaderLeader(DataLoaderTest):
         # Xử lý các dữ liệu còn lại
         if len(impids) > 0:
             total_batches += 1
-            print.info(f'Yielding final batch {total_batches}, size: {len(impids)}')
+            print(f'Yielding final batch {total_batches}, size: {len(impids)}')
 
             user_feature_batch = torch.FloatTensor(user_feature_batch).cuda()
             log_mask_batch = torch.FloatTensor(log_mask_batch).cuda()
