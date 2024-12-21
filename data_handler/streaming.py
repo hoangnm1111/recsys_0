@@ -3,12 +3,12 @@ import logging
 import fnmatch
 import random
 import numpy as np
-import tensorflow as tf
 from queue import Queue
 from concurrent.futures import ThreadPoolExecutor
 import sys
 import traceback
-
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 def get_files(dirname, filename_pat="*", recursive=False):
     if not tf.io.gfile.exists(dirname):
@@ -67,14 +67,15 @@ class StreamReader:
 
         dataset = dataset.batch(batch_size)
         dataset = dataset.prefetch(3)
-        self.next_batch = dataset.make_one_shot_iterator().get_next()
+        self.next_batch = tf.compat.v1.data.make_one_shot_iterator(dataset).get_next()
         self.session = None
+
 
     def reset(self):
         # print(f"StreamReader reset(), {self.session}, pid:{threading.currentThread()}")
         if self.session:
             self.session.close()
-        self.session = tf.Session()
+        self.session = tf.compat.v1.Session()
         self.endofstream = False
 
     def get_next(self):
@@ -92,15 +93,15 @@ class StreamReader:
 
 class StreamSampler:
     def __init__(
-            self,
-            data_dirs,
-            filename_pat,
-            batch_size,
-            worker_rank,
-            world_size,
-            enable_shuffle=False,
-            shuffle_buffer_size=1000,
-            shuffle_seed=0,
+        self,
+        data_dirs,
+        filename_pat,
+        batch_size,
+        worker_rank,
+        world_size,
+        enable_shuffle=False,
+        shuffle_buffer_size=1000,
+        shuffle_seed=0,
     ):
         data_paths = get_worker_files(
             data_dirs,
@@ -155,9 +156,9 @@ class StreamReaderForSpeedy:
 
 class StreamSamplerTrainForSpeedyRec:
     def __init__(
-            self,
-            data_files,
-            local_rank
+        self,
+        data_files,
+        local_rank
     ):
         '''
         Args:
@@ -193,7 +194,7 @@ class StreamSamplerTrainForSpeedyRec:
 
     def _generate_batch(self):
         while True:
-            if len(self.data_files) > 0:
+            if len(self.data_files)>0:
                 path = self.data_files.pop(0)
                 with tf.io.gfile.GFile(path, "r") as f:
                     market = path.split("/")[-2]
@@ -209,7 +210,7 @@ class StreamSamplerTrainForSpeedyRec:
         return self
 
     def __next__(self):
-        if self.sampler and self.aval_count == 0 and self.end == True:
+        if self.sampler and  self.aval_count == 0 and self.end == True:
             raise StopIteration
         next_batch = self.outputs.get()
         self.outputs.task_done()
@@ -228,6 +229,8 @@ class StreamSamplerTrainForSpeedyRec:
         self.sampler = None
 
 
+
+
 class StreamReaderTest(StreamReader):
     def __init__(self, data_paths, batch_size, shuffle, shuffle_buffer_size=1000):
         tf.config.experimental.set_visible_devices([], device_type="GPU")
@@ -243,24 +246,24 @@ class StreamReaderTest(StreamReader):
 
         # if shuffle:
         #     dataset = dataset.shuffle(shuffle_buffer_size, reshuffle_each_iteration=True)
-
+        
         dataset = dataset.batch(batch_size)
         dataset = dataset.prefetch(1)
-        self.next_batch = dataset.make_one_shot_iterator().get_next()
+        self.next_batch = tf.compat.v1.data.make_one_shot_iterator(dataset).get_next()
         self.session = None
 
 
 class StreamSamplerTest(StreamSampler):
     def __init__(
-            self,
-            data_dirs,
-            filename_pat,
-            batch_size,
-            worker_rank,
-            world_size,
-            enable_shuffle=False,
-            shuffle_buffer_size=1000,
-            shuffle_seed=0,
+        self,
+        data_dirs,
+        filename_pat,
+        batch_size,
+        worker_rank,
+        world_size,
+        enable_shuffle=False,
+        shuffle_buffer_size=1000,
+        shuffle_seed=0,
     ):
         data_paths = get_worker_files(
             data_dirs,
