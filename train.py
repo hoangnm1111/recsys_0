@@ -24,7 +24,7 @@ from data_handler.preprocess import get_news_feature, infer_news
 from data_handler.TrainDataloader import DataLoaderTrainForSpeedyRec
 from data_handler.TestDataloader import DataLoaderTest
 
-from models.speedyrec import MLNR
+from models.fast import Fastformer
 
 
 def ddp_train_vd(args):
@@ -71,7 +71,7 @@ def train(local_rank,
                 data_paths.extend(get_files(data_dirs, args.filename_pat))
                 data_paths.sort()
 
-        model = MLNR(args)
+        model = Fastformer(args)
         if 'speedymind_ckpts' in args.pretrained_model_path:
             train_path = os.path.join(args.pretrained_model_path, 'fastformer4rec.pt')
             model.load_param(train_path)

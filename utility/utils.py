@@ -9,15 +9,7 @@ from contextlib import contextmanager
 import torch.distributed as dist
 
 from transformers import AutoTokenizer, AutoConfig, AutoModel
-from models.tnlrv3.modeling import TuringNLRv3ForSequenceClassification
-from models.tnlrv3.configuration_tnlrv3 import TuringNLRv3Config
-from models.tnlrv3.tokenization_tnlrv3 import TuringNLRv3Tokenizer
 from models.fast import Fastformer
-MODEL_CLASSES = {
-    # 'unilm': (TuringNLRv3Config, Fastformer, TuringNLRv3Tokenizer),
-    'unilm': (TuringNLRv3Config, TuringNLRv3ForSequenceClassification, TuringNLRv3Tokenizer),
-    'others': (AutoConfig, AutoModel, AutoTokenizer)
-}
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -47,25 +39,8 @@ def dump_args(args):
         if not arg.startswith("_"):
             logging.info(f"args[{arg}]={getattr(args, arg)}")
 
-def init_process(rank, world_size):
-    os.environ['MASTER_ADDR'] = 'localhost'
-    os.environ['MASTER_PORT'] = '12365'
-
-    # initialize the process group
-    os.environ["RANK"] = str(rank)
-    dist.init_process_group("nccl", rank=rank, world_size=world_size, )
-    torch.cuda.set_device(rank)
-
-    # Explicitly setting seed to make sure that models created in two processes
-    # start from same random weights and biases.
-    torch.manual_seed(42)
-    np.random.seed(42)
-    random.seed(42)
-
-
 def cleanup_process():
     dist.destroy_process_group()
-
 
 def get_device():
     if torch.cuda.is_available():
@@ -86,9 +61,6 @@ def get_barrier(dist_training):
 
 @contextmanager
 def only_on_main_process(local_rank, barrier):
-    """
-    Decorator to make all processes in distributed training wait for each local_master to do something.
-    """
     need = True
     if local_rank not in [-1, 0]:
         barrier()
@@ -121,9 +93,6 @@ def check_args_environment(args):
 
 
 class timer:
-    """
-    Time context manager for code block
-    """
     from time import time
     NAMED_TAPE = {}
 

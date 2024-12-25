@@ -7,7 +7,7 @@ import zipfile
 from utility.utils import (setuplogger,  dump_args, check_args_environment)
 from data_handler.preprocess import get_news_feature, infer_news
 from data_handler.TestDataloader import DataLoaderLeader
-from models.speedyrec import MLNR
+from models.fast import Fastformer
 
 def generate_submission(args):
     setuplogger()
@@ -17,7 +17,7 @@ def generate_submission(args):
     local_rank = 0
     device = torch.device('cuda', int(local_rank))
 
-    model = MLNR(args)
+    model = Fastformer(args)
     model = model.to(device)
     ckpt = torch.load(args.load_ckpt_name)
     model.load_state_dict(ckpt['model_state_dict'])
