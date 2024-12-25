@@ -35,9 +35,17 @@ python train.py \
 --npratio 4 \
 --savename rec_mind \
 --news_dim 256
--- save_model_path ./save-models/
+-- save_model_path ./saved-models/
 ```
-Mô hình sau khi train sẽ được lưu trong 1 file checkpoint tại folder ```save-models```
+Mô hình sau khi train sẽ được lưu trong 1 file checkpoint tại folder ```saved-models```
 
 # Prediction
-Dự đoán
+Dự đoán bằng checkpoint đã có được từ bước train và đưa kết quả dự đoán vào dạng zip
+```
+python submission.py \
+--num_hidden_layers 8 \
+--load_ckpt_name ./saved-models \
+--batch_size 256 \
+--news_dim 256
+```
+Sau khi thực hiện xong lệnh này sẽ tạo ra 1 file zip có tên 'prediction', có thể nộp file này trực tiếp lên cuộc thi MINDs trên Codalab
