@@ -9,7 +9,7 @@ def parse_args():
         "--root_data_dir",
         type=str,
         default=
-        "/ads-nfs/t-shxiao/cache/data/Mind_large/",
+        "/data",
     )
 
     parser.add_argument("--filename_pat", type=str, default="ProtoBuf_*.tsv")
@@ -58,7 +58,7 @@ def parse_args():
     parser.add_argument(
         "--num_attention_heads",
         type=int,
-        default=20,
+        default=16,
     )
     parser.add_argument(
         "--attention_dims",
@@ -101,8 +101,6 @@ def parse_args():
     parser.add_argument("--savename", type=str, default='speedy')
     parser.add_argument("--warmup_step", type=int, default=2000)
     parser.add_argument("--schedule_step", type=int, default=30000)
-    parser.add_argument("--test_steps", type=int, default=1000000)
-    parser.add_argument("--max_hit_ratio", type=float, default=1)
 
     args = parser.parse_args()
     logging.info(args)
